@@ -81,21 +81,21 @@ if connection_type == 'ssh':
 elif connection_type == 'telnet':
     # Start Telnet session
     session = pexpect.spawn('telnet ' + ip_address, encoding='utf-8', timeout=20)
-    result = session.expect(['Username:', pexpect.TIMEOUT])
+    result = session.expect(['Username:', pexpect.TIMEOUT, pexpect.EOF])
 
     if result != 0:
         print('--- Failed to create session for: ', ip_address)
         exit()
 
     session.sendline(username_telnet)
-    result = session.expect(['Password:', pexpect.TIMEOUT])
+    result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
 
     if result != 0:
         print('--- Failed to enter username: ', username_telnet)
         exit()
 
     session.sendline(password_telnet)
-    result = session.expect(['#', pexpect.TIMEOUT])
+    result = session.expect(['#', pexpect.TIMEOUT, pexpect.EOF])
 
     if result == 0:
         print("--- Successfully logged in")

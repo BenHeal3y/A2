@@ -95,14 +95,32 @@ elif connection_type == 'telnet':
         exit()
 
     session.sendline(password_telnet)
-    result = session.expect(['#', pexpect.TIMEOUT, pexpect.EOF])
+    result = session.expect(['>', pexpect.TIMEOUT, pexpect.EOF])
 
     if result == 0:
         print("--- Successfully logged in")
     else:
         print('--- Failed to enter password: ', password_telnet)
         exit()
+        
+    session.sendline('enable')
+    result = session.expect(['>', pexpect.TIMEOUT, pexpect.EOF])
 
+    if result == 0:
+        print("--- Successfully sent (enable)")
+    else:
+        print('--- Failed to enter enable')
+        exit()
+
+    session.sendline(password_enable)
+    result = session.expect(['#', pexpect.TIMEOUT, pexpect.EOF])
+
+    if result == 0:
+        print("--- Successfully entered enable mode")
+    else:
+        print('--- Failed to enter enable mode')
+        exit()
+        
      # Enter configuration mode
     session.sendline('configure terminal')
     result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])

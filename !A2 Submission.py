@@ -7,6 +7,11 @@ def A1_ssh(ip_address, username, password_ssh, password_enable):
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
 
+    #SSH Declarations
+    ip_address = '192.168.56.101'
+    username = 'cisco'
+    password_ssh = 'cisco123!'
+    password_enable = 'class123!'
 
 #Check if "Password:" was actually received   (to see if we have entered the session)
     if result != 0:
@@ -102,6 +107,13 @@ def A1_telnet(ip_address, username_telnet, password_telnet, password_enable):
 #starts the telnet session
     session = pexpect.spawn('telnet ' + ip_address, encoding='utf-8', timeout=20)
     result = session.expect(['Username:', pexpect.TIMEOUT, pexpect.EOF])
+
+    #Telnet Declarations
+    ip_address = '192.168.56.101'
+    password_ssh = 'cisco123!'
+    password_enable = 'class123!'
+    username_telnet = 'prne'
+    password_telnet = 'cisco123!'
 
 #Check if "Username:" was actually received   (we entered the telnet session)
     if result != 0:
@@ -203,6 +215,11 @@ def hardening_checks(ip_address,username,password_ssh,password_enable):
    
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
+    #SSH Declarations
+    ip_address = '192.168.56.101'
+    username = 'cisco'
+    password_ssh = 'cisco123!'
+    password_enable = 'class123!'
 
  #Hardening checks
     hardening_items = {

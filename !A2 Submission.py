@@ -184,7 +184,7 @@ def A1_telnet(ip_address, username_telnet, password_telnet, password_enable):
     print("Session ended")
     return
 
-def hardening_checks(ip_address,username,password_ssh,password_enable):
+def hardening_checks(ip_address,username,password_ssh):
    
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
@@ -192,7 +192,7 @@ def hardening_checks(ip_address,username,password_ssh,password_enable):
     ip_address = '192.168.56.101'
     username = 'cisco'
     password_ssh = 'cisco123!'
-    password_enable = 'class123!'
+   
 
  #Hardening checks
     hardening_items = {
@@ -280,7 +280,7 @@ def main():
         elif choice == "2":
             A1_telnet(ip_address, username, password_ssh, password_enable)
         elif choice == "3":
-            hardening_checks(ip_address,username,password_ssh,password_enable)
+            hardening_checks(ip_address,username,password_ssh)
         elif choice == "4":
             enable_syslog(username,password_ssh,password_enable,ip_address)
         elif choice == "x":

@@ -281,7 +281,7 @@ def A2_enable_syslog(username,password_ssh,password_enable,ip_address):
 #
 #=-------------=
 
-def A3_configure_acl(ip_address, username, password_ssh, ):
+def A3_configure_acl(ip_address, username, password_ssh, password_enable):
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
 
@@ -322,14 +322,13 @@ def A3_configure_acl(ip_address, username, password_ssh, ):
     
 
 
-    session.sendline("ip access-group extended Inward_Traffic")  
+    session.sendline("ip access-list extended Inward_Traffic")  
     print("Defining a new ACL called Inward Traffic")
     
     session.sendline("permit ip 192.168.56.101 0.0.0.0 any")
     print("Allowing incoming traffic")
 
-    session.sendline("access-list deny ip any any ")
-    
+    session.sendline("deny ip any any ")
     print("sent access list deny")
     session.sendline("interface GigabitEthernet 0/1")
     session.sendline("ip access_group Inward_Traffic in")
@@ -381,3 +380,4 @@ def main():
             print("Invalid choice, try again.")
 if __name__ == '__main__':
     main()
+

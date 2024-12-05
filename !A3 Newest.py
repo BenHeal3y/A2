@@ -242,7 +242,7 @@ def A2_hardening_checks(ip_address,username,password_ssh):
     return
 
 
-def A2_enable_syslog(username,password_ssh,password_enable,ip_address):
+def A2_enable_syslog(username,password_ssh,ip_address):
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
 
@@ -500,67 +500,116 @@ def A3_configure_ipsec(ip_address, username, password_ssh):
         print('Successfully re-entered config mode!')
 
 #define which peer device to use this key
-    session.sendline('crypto isakmp key MY_KEY address 192.168.1.1')
+    session.sendline('crypto isakmp key my_key address 192.168.1.1')
     result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to create encryption ke')
+        print('--- Failed to create encryption key')
         exit()
     else:
         print('Successfully created encryption keys!')
 
-#
-    session.sendline('crypto ipsec transform-set MY_TRANSFORM_SET esp-aes esp-sha-hmac')
+#configuring the transform set 
+    session.sendline('crypto ipsec transform-set transform_set esp-aes esp-sha-hmac')
     result = session.expect([r'\(cfg-crypto-trans\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to configure encryption key')
+        print('--- Failed to configure transform set')
     else:
-        print('Successfully configured encryption key!')
+        print('Successfully configured a transform set!')
 
-
-    session.sendline('access-list 110 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255')
+#setting up a new access control list
+    session.sendline('ip access-list extended my_acl')
     result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
-    #Error Checks
+        #Error Checks
+        
     if result != 0:
-        print('--- Failed to ')
+        print('--- Failed to create new Access Control List')
         exit()
     else:
-        print('Successfully !')
-    session.sendline('crypto map MY_CRYPTO_MAP 10 ipsec-isakmp')
+        print('Successfully created a new Access Control List!')
+
+#permit the device and the router to communicate
+    session.sendline('permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255')
+    result = session.expect([r'\(config-ext-nacl\)#', pexpect.TIMEOUT, pexpect.EOF])
+    #Error Checks
+    if result != 0:
+        print('--- Failed to allow communication')
+        exit()
+    else:
+        print('Successfully allowed communication !')
+
+#assign the crypto-map to the policy 10 vpn
+    session.sendline('crypto map crypto_map 10 ipsec-isakmp')
     result = session.expect([r'\(config-crypto-map\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to ')
+        print('--- Failed to assign the crypto-map to the vpn')
         exit()
     else:
-        print('Successfully !')
+        print('Successfully assigned the crypto-map to the vpn!')
 
+#sets the vpn end-point ip
     session.sendline('set peer 192.168.2.1')  
     result = session.expect([r'\(config-crypto-map\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to ')
+        print('--- Failed to set the vpn end-point ')
         exit()
     else:
-        print('Successfully !')
+        print('Successfully set the vpn end-point!')
 
-    session.sendline('set transform-set MY_TRANSFORM_SET') 
+#set-up the transform set
+    session.sendline('set transform-set transform_set') 
     result = session.expect([r'\(config-crypto-map\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to ')
+        print('--- Failed to setup transform-set ')
         exit()
     else:
-        print('Successfully !')
-    session.sendline('match address 110') 
+        print('Successfully setup transform-set!')
+
+#match the permissions of the acl to the crypto map
+    session.sendline('match address my_acl') 
     result = session.expect([r'\(config-crypto-map\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to ')
+        print('--- Failed to set permissions of crypto map ')
         exit()
     else:
-        print('Successfully !')
+        print('Successfully set permissions of crypto map!')
+
+#Exit to config mode
+    session.sendline('exit')
+    result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+    #Error Checks
+    if result != 0:
+        print('--- Failed to re-enter config mode ')
+        exit()
+    else:
+        print('Successfully re-entered config mode!')
+    
+#enter gigabitethernet 1
+    session.sendline('interface gigabitEthernet1')
+    result = session.expect([r'\(config-if\)#', pexpect.TIMEOUT, pexpect.EOF])
+    #Error Checks
+    if result != 0:
+        print('--- Failed to enter gigabit interface')
+        exit()
+    else:
+        print('Successfully entered gigabit interface!')
+
+#assign this crypto-map to this interface        
+    session.sendline('crypto map crypto_map')
+    result = session.expect([r'\(config-if\)#', pexpect.TIMEOUT, pexpect.EOF])
+    #Error Checks
+    if result != 0:
+        print('--- Failed to assign crypto-map to gigabit interface')
+        exit()
+    else:
+        print('Successfully assigned crypto-map to gigabit interface!')
+
+#exiting the interface
     session.sendline('exit')
     result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
@@ -569,35 +618,50 @@ def A3_configure_ipsec(ip_address, username, password_ssh):
         exit()
     else:
         print('Successfully !')
-
-    session.sendline('interface gigabitEthernet 0/1')
-    result = session.expect([r'\(config-if\)#', pexpect.TIMEOUT, pexpect.EOF])
-    #Error Checks
-    if result != 0:
-        print('--- Failed to ')
-        exit()
-    else:
-        print('Successfully !')
-    session.sendline('crypto map MY_CRYPTO_MAP')
-    result = session.expect([r'\(config-if\)#', pexpect.TIMEOUT, pexpect.EOF])
-    #Error Checks
-    if result != 0:
-        print('--- Failed to ')
-        exit()
-    else:
-        print('Successfully !')
+    
+#exiting config mode
     session.sendline('exit')
-    result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+    result = session.expect(['#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to ')
+        print('--- Failed to re-enter enable mode ')
         exit()
     else:
-        print('Successfully !')
+        print('Successfully re-entered enable mode !')
+    
+#write the current configurations to memory
+    session.sendline('write memory')
+    result = session.expect(['#', pexpect.TIMEOUT, pexpect.EOF], timeout=20)
+    #Error Checks
+    if result != 0:
+        print('--- Failed to write new configurations to memory ')
+        exit()
+    else:
+        print('Successfully wrote new configurations to memory !')
 
     print("IPSec configuration complete.")
 
     session.close()
+
+
+
+#=-------------=
+#
+#     Extra
+# Functionality
+#
+#=-------------=
+
+def login():
+
+
+    ask_password = str(print('Password:'))
+    if ask_password == :
+        main()
+    else:
+        print('Incorrect password try again')
+
+    
 
 #=-------------=
 #
@@ -610,9 +674,15 @@ def A3_configure_ipsec(ip_address, username, password_ssh):
 
 def main():
     #Delarations
+
+
+    with open('ssh_password.txt', 'r') as f:
+        contents = f.readlines()
+        
+            
     ip_address = '192.168.56.101'
     username = 'cisco'
-    password_ssh = 'cisco123!'
+    password_ssh = contents
     password_enable = 'class123!'
     
     while True:

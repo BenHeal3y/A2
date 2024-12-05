@@ -1,10 +1,14 @@
 import pexpect
 import sys, hashlib
 
+def get_hashed_text(text:str):
+    return hashlib.sha256(text.encode()) .hexdigest()
 
-key = input('Enter password: ')
+key = getpass.getpass('Enter password: ')
 if get_hashed_text(key) != 'e73b79a0b10f8cdb6ac7dbe4c0a5e25776e1148784b86cf98f7d6719d472af69':
-    sys.stderr.write (f{key}' is not the correct password\n')
+    sys.stderr.write (f'{key} is not the correct password\n')
+    exit()
+
 
 #=-------------=
 #
@@ -62,6 +66,30 @@ def A1_ssh(ip_address, username, password_ssh, password_enable):
         exit()
     else:
         print('Successfully changed the hostname!')
+
+    session.sendline('service password-encryption')
+    result = session.expect([r'BEN\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+
+#Check if "BEN(config)#" was actually received   (the router was renamed)
+    if result != 0:
+        print('--- Failed to enable password encryption')
+        exit()
+    else:
+        print('Successfully enabled password encryption!')
+
+    session.sendline('logging buffered 4096 informational')
+    result = session.expect([r'BEN\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+
+#Check if "BEN(config)#" was actually received   (the router was renamed)
+    if result != 0:
+        print('--- Failure! entering config mode')
+        exit()
+    else:
+        print('Successfully changed the hostname!')
+
+
+
+
 
 #exits config mode so we can easily enter "show runningconfig"
     session.sendline('exit')
@@ -169,6 +197,16 @@ def A1_telnet(ip_address, username_telnet, password_telnet, password_enable):
     else:
         print('Successfully changed the hostname!')
 
+    session.sendline('service password-encryption')
+    result = session.expect([r'BEN\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+
+#Check if "BEN(config)#" was actually received   (we successfully changed the hostname)
+    if result != 0:
+        print('--- Failed enabling password-encryption')
+        exit()
+    else:
+        print('Successfully enabled password-encryption!')
+
 
 
 #exits config mode so we can easily enter "show runningconfig"
@@ -232,6 +270,7 @@ def A2_hardening_checks(ip_address,username,password_ssh):
 #Getting the current running config
     session.sendline('terminal length 0')
     session.sendline('show run')
+    session.expect('#')
     print(session.before)
     running_config = session.before
 
@@ -724,10 +763,9 @@ def main():
         else:
             print("Invalid choice, try again.")
 
-def get_hashed_text(text:str):
-    return hashlib.sha256(text.encode()) .hexdigest()
 
 
 
 if __name__ == '__main__':
     main()
+

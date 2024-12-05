@@ -1,5 +1,5 @@
 import pexpect
-import sys, hashlib
+import sys, hashlib, getpass
 
 def get_hashed_text(text:str):
     return hashlib.sha256(text.encode()) .hexdigest()
@@ -269,6 +269,7 @@ def A2_hardening_checks(ip_address,username,password_ssh):
 
 #Getting the current running config
     session.sendline('terminal length 0')
+    session.expect('#')
     session.sendline('show run')
     session.expect('#')
     print(session.before)
@@ -287,6 +288,8 @@ def A2_hardening_checks(ip_address,username,password_ssh):
 def A2_enable_syslog(username,password_ssh,ip_address):
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
+
+    password_ssh = 'cisco123!'
 
     if result != 0:
         print('--- Failed to create session for: ', ip_address)
@@ -752,7 +755,7 @@ def main():
         elif choice == "3":
             A2_hardening_checks(ip_address,username,password_ssh)
         elif choice == "4":
-            A2_enable_syslog(username,password_ssh,password_enable,ip_address)
+            A2_enable_syslog(username,password_ssh,ip_address)
         elif choice == "5":
             A3_configure_acl(ip_address, username, password_ssh, password_enable)
         elif choice == "6":
@@ -768,4 +771,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 

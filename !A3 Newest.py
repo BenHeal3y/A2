@@ -391,7 +391,7 @@ def A3_configure_acl(ip_address, username, password_ssh, password_enable):
     print ("Successfully configured ACL")
    
     session.sendline("exit")
-    result = session.expect(['BEN#', pexpect.TIMEOUT, pexpect.EOF])
+    result = session.expect(['BEN#', pexpect.TIMEOUT, pexpect.EOF], timeout=20)
 
 #Error Checks
     if result != 0:
@@ -406,7 +406,7 @@ def A3_configure_acl(ip_address, username, password_ssh, password_enable):
     session.close()
 
 
-def A3_configure_ipsec(ip_address, username, password_ssh, password_enable):
+def A3_configure_ipsec(ip_address, username, password_ssh):
     session = pexpect.spawn(f'ssh {username}@{ip_address}', encoding='utf-8', timeout=20)
     result = session.expect(['Password:', pexpect.TIMEOUT, pexpect.EOF])
 
@@ -500,7 +500,7 @@ def A3_configure_ipsec(ip_address, username, password_ssh, password_enable):
         print('Successfully re-entered config mode!')
 
 #define which peer device to use this key
-    session.sendline('crypto isakmp key mysecurekey address 192.168.1.1')
+    session.sendline('crypto isakmp key MY_KEY address 192.168.1.1')
     result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
@@ -514,10 +514,9 @@ def A3_configure_ipsec(ip_address, username, password_ssh, password_enable):
     result = session.expect([r'\(cfg-crypto-trans\)#', pexpect.TIMEOUT, pexpect.EOF])
     #Error Checks
     if result != 0:
-        print('--- Failed to create encryption ke')
-        exit()
+        print('--- Failed to configure encryption key')
     else:
-        print('Successfully created encryption keys!')
+        print('Successfully configured encryption key!')
 
 
     session.sendline('access-list 110 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255')
@@ -637,8 +636,8 @@ def main():
             A2_enable_syslog(username,password_ssh,password_enable,ip_address)
         elif choice == "5":
             A3_configure_acl(ip_address, username, password_ssh, password_enable)
-        #elif choice == "6":
-         #   A3_configure_ipsec(ip_address, username, password_ssh, password_enable)
+        elif choice == "6":
+           A3_configure_ipsec(ip_address, username, password_ssh, password_enable)
         elif choice == "x":
             print("Exiting... Goodbye!")
             break

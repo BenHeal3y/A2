@@ -244,7 +244,7 @@ def A2_hardening_checks(ip_address,username,password_ssh):
 
  #Hardening checks
     hardening_items = {
-    'SSH enabled': 'ip ssh  version 2',
+    'https enabled': 'ip http secure-server',
     'Telnet disabled': 'no service telnet',
     'Password encryption': 'service password-encryption',
     'Logging enable': 'logging buffered',
@@ -291,6 +291,10 @@ def A2_enable_syslog(username,password_ssh,ip_address):
 
     password_ssh = 'cisco123!'
 
+    syslog_check = {
+        'syslog successfully enabled!': 'syslog logging: enabled'
+    }
+
     if result != 0:
         print('--- Failed to create session for: ', ip_address)
         exit()
@@ -316,6 +320,17 @@ def A2_enable_syslog(username,password_ssh,ip_address):
     session.sendline("logging trap information")
     print("logged trap information")
     print ("Configured Syslog successfully")
+
+
+    session.sendline('exit')
+    session.sendline('show logging')
+    print(session.before)
+    logging_info = session.before
+
+    for check, rule in syslog_check.items():
+        if rule in logging_info:
+            print(check)
+
     session.close()
 
     return

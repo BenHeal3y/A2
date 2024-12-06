@@ -323,48 +323,51 @@ def A2_enable_syslog(username,password_ssh,ip_address):
     session.sendline('ip access-list extended syslog_config')
     result = session.expect([r'\(config-ext-nacl\)#', pexpect.TIMEOUT, pexpect.EOF])
 
-#Check if "(config)#" was actually received
+
     if result != 0:
-        print('--- Failed to enter configuration mode')
+        print('--- Failed')
         exit()
     else:
-        print('Successfully entered configuration mode!')
+        print('Successful!')
+
     session.sendline('permit tcp 192.168.56.101 0.0.0.255 any')
     result = session.expect([r'\(config-ext-nacl\)#', pexpect.TIMEOUT, pexpect.EOF])
 
-#Check if "(config)#" was actually received
+
     if result != 0:
-        print('--- Failed to enter configuration mode')
+        print('--- Failed')
         exit()
     else:
-        print('Successfully entered configuration mode!')
+        print('Successful!')
     session.sendline('deny ip any any')
     result = session.expect([r'\(config-ext-nacl\)#', pexpect.TIMEOUT, pexpect.EOF])
 
-#Check if "(config)#" was actually received
+
     if result != 0:
-        print('--- Failed to enter configuration mode')
+        print('--- Failed')
         exit()
     else:
-        print('Successfully entered configuration mode!')
+        print('Successful!')
     session.sendline('logging host 192.168.56.101')
-    result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+    result = session.expect([r'\(config-ext-nacl\)#', pexpect.TIMEOUT, pexpect.EOF])
 
-#Check if "(config)#" was actually received
+
     if result != 0:
-        print('--- Failed to enter configuration mode')
+        print('--- Failed')
         exit()
     else:
-        print('Successfully entered configuration mode!')
+        print('Successful!')
+
+
     session.sendline('logging trap information')
-    result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+    result = session.expect([r'\(config-ext-nacl\)#', pexpect.TIMEOUT, pexpect.EOF])
 
-#Check if "(config)#" was actually received
+
     if result != 0:
-        print('--- Failed to enter configuration mode')
+        print('--- Failed')
         exit()
     else:
-        print('Successfully entered configuration mode!')
+        print('Successful!')
 
 
     session.sendline('exit')
@@ -375,8 +378,10 @@ def A2_enable_syslog(username,password_ssh,ip_address):
 
     logging_info = session.before
 
-    if 'syslog logging : enabled' in logging_info:
-        print('successfully enabled syslog')
+    if 'syslog logging : enabled' not in logging_info:
+        print('failed to enable syslog')
+    else:
+        print('successfully enabled syslog!')
 
     session.close()
 

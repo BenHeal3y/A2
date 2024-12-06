@@ -1,4 +1,4 @@
-import pexpect
+
 import sys, hashlib, getpass
 
 def get_hashed_text(text:str):
@@ -311,20 +311,32 @@ def A2_enable_syslog(username,password_ssh,ip_address):
     else:
         print('Successfully entered password!')
     
-    session.sendline("access-list 100 permit ip 192.168.56.101 0.0.0.255 any")
-    print("sent access list 100 permit")
-    session.sendline("access-list deny ip any any ")
-    print("sent access list deny")
-    session.sendline("logging host 192.168.56.101")
-    print("logging host 192.168.56.101")
-    session.sendline("logging trap information")
-    print("logged trap information")
-    print ("Configured Syslog successfully")
+    session.sendline('conf t')
+    result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+
+#Check if "(config)#" was actually received
+    if result != 0:
+        print('--- Failed to enter configuration mode')
+        exit()
+    else:
+        print('Successfully entered configuration mode!')
+    
+
+    
+    session.sendline('ip access-list extended syslog_config')
+    session.sendline('permit tcp 192.168.56.101 0.0.0.255 any')
+    session.sendline('deny ip any any')
+    session.sendline('logging host 192.168.56.101')
+    session.sendline('logging trap information')
+
 
 
     session.sendline('exit')
+    session.expect('#')
     session.sendline('show logging')
+    session.expect('#')
     print(session.before)
+
     logging_info = session.before
 
     for check, rule in syslog_check.items():
@@ -786,5 +798,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 

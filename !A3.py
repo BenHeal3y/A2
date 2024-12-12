@@ -3,11 +3,23 @@ import sys, hashlib, getpass
 def get_hashed_text(text:str):
     return hashlib.sha256(text.encode()) .hexdigest()
 
-key = getpass.getpass('Enter password: ')
-if get_hashed_text(key) != 'e73b79a0b10f8cdb6ac7dbe4c0a5e25776e1148784b86cf98f7d6719d472af69':
-    sys.stderr.write (f'{key} is not the correct password\n')
-    exit()
+correct_key = ('e73b79a0b10f8cdb6ac7dbe4c0a5e25776e1148784b86cf98f7d6719d472af69')
 
+logins = 0
+max_tries = 3
+
+key = getpass.getpass('Enter password: ')
+
+while logins < max_tries:
+    if get_hashed_text(key) == correct_key:
+        print('Access granted!')
+        break
+    else:
+        logins = logins + 1
+        sys.stderr.write (f'{key} is not the correct password\n')
+if logins == max_tries:
+        print('Too many failed attempts, Exiting')
+        exit()
 
 #=-------------=
 #
@@ -754,20 +766,6 @@ def A3_configure_ipsec(ip_address, username, password_ssh):
 #
 #=-------------=
 
-#def login():
-
-
-   # ask_password = str(print('Password:'))
-   # if ask_password == :
-   #     main()
-   # else:
-   #     print('Incorrect password try again')
-
-
-
-
-#while 1:
- #   key = getpass.getpass('Enter Key')
 
 
 #=-------------=
@@ -795,14 +793,14 @@ def main():
     password_enable = 'class123!'
     
     while True:
-        print("Select the connection type you would like:")
-        print("1. SSH session")
-        print("2. Telnet session")
+        print("Select the function you would like to use:")
+        print("1. SSH session----------------------------------")
+        print("2. Telnet session-------------------------------")
         print("3. Compare the running config to hardening guide")
-        print("4. Enable syslog")
-        print("5. Configure An ACL ")
-        print("6. Configure IPSec")
-        print("x. Exit")
+        print("4. Enable syslog--------------------------------")
+        print("5. Configure An ACL-----------------------------")
+        print("6. Configure IPSec------------------------------")
+        print("x. Exit-----------------------------------------")
         choice = input ("Enter your choice (1/2/3/4/5/6/x):")
 
         if choice == "1":
